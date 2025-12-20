@@ -1,19 +1,21 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
-import { getAllNotes } from "@/lib/redis";
+import Image from "next/image";
+import NoteListSkeleton from "@/components/NoteListSkeleton";
 import SidebarNoteList from "@/components/SidebarNoteList";
+import EditButton from "@/components/EditButton";
+
 export default async function Sidebar() {
-  const notes = await getAllNotes();
   return (
     <>
       <section className="col sidebar">
         <Link href={"/"} className="link--unstyled">
           <section className="sidebar-header">
-            <img
+            <Image
               className="logo"
               src="/logo.svg"
-              width="22px"
-              height="20px"
+              width={22}
+              height={20}
               alt=""
               role="presentation"
             />
@@ -21,10 +23,13 @@ export default async function Sidebar() {
           </section>
         </Link>
         <section className="sidebar-menu" role="menubar">
+          <EditButton noteId={null}>New</EditButton>
           {/* SideSearchField */}
         </section>
         <nav>
-          <SidebarNoteList notes={notes} />
+          <Suspense fallback={<NoteListSkeleton />}>
+            <SidebarNoteList />
+          </Suspense>
         </nav>
       </section>
     </>
