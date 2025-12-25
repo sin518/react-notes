@@ -4,6 +4,7 @@ import Image from "next/image";
 import NoteListSkeleton from "@/components/NoteListSkeleton";
 import SidebarNoteList from "@/components/SidebarNoteList";
 import EditButton from "@/components/EditButton";
+import SideSearchField from "@/components/SideSearchField";
 
 export default async function Sidebar() {
   return (
@@ -19,12 +20,12 @@ export default async function Sidebar() {
               alt=""
               role="presentation"
             />
-            <strong>React Notes</strong>
+            <strong>Notes</strong>
           </section>
         </Link>
         <section className="sidebar-menu" role="menubar">
+          <SideSearchField />
           <EditButton noteId={null}>New</EditButton>
-          {/* SideSearchField */}
         </section>
         <nav>
           <Suspense fallback={<NoteListSkeleton />}>
