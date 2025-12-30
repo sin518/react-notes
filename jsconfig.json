@@ -2,8 +2,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["app/components/*"],
-      "@/lib/*": ["app/lib/*"]
+      "@/actions": ["app/[locale]/actions.js"],
+      "@/components/*": ["components/*"],
+      "@/lib/*": ["lib/*"],
+      "@/*": ["/*"]
     }
   }
 }
