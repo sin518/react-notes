@@ -6,6 +6,7 @@ import SidebarNoteList from "@/components/SidebarNoteList";
 import EditButton from "@/components/EditButton";
 import SideSearchField from "@/components/SideSearchField";
 import { getTranslations, getMessages } from "next-intl/server";
+import SidebarImport from "@/components/SidebarImport";
 
 export default async function Sidebar({ locale }) {
   let t;
@@ -14,6 +15,8 @@ export default async function Sidebar({ locale }) {
     t = await getTranslations({ locale, namespace: "Basic" });
     messages = await getMessages({ locale });
   } catch (err) {
+    // 如果 next-intl 加载翻译失败，不要抛出错误导致页面返回 404
+    // 回退到最简单的函数/空消息对象
     t = (key) => key;
     messages = {};
     console.error("Sidebar: failed to load translations:", err);
@@ -35,7 +38,7 @@ export default async function Sidebar({ locale }) {
           </section>
         </Link>
         <section className="sidebar-menu" role="menubar">
-          <SideSearchField />
+          <SideSearchField placeholder={t("search")} />
           <EditButton noteId={null}>{t("new")}</EditButton>
         </section>
         <nav>
@@ -43,6 +46,7 @@ export default async function Sidebar({ locale }) {
             <SidebarNoteList />
           </Suspense>
         </nav>
+        <SidebarImport />
       </section>
     </>
   );

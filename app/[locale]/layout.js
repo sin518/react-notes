@@ -1,16 +1,21 @@
 import "./style.css";
 import Sidebar from "@/components/Sidebar";
-import { getMessages } from "next-intl/server";
+import { getRequestConfig } from "next-intl/server";
 import IntlProviderClient from "@/components/IntlProviderClient";
 
 export default async function LocaleLayout({ children, params }) {
   const { locale } = await params;
-  const messages = await getMessages({ locale });
+  const cfg = await getRequestConfig({ locale });
+  const { messages, timeZone } = cfg ?? { messages: {}, timeZone: "UTC" };
   return (
     <>
       <div className="container">
         <div className="main">
-          <IntlProviderClient locale={locale} messages={messages}>
+          <IntlProviderClient
+            locale={locale}
+            messages={messages}
+            timeZone={timeZone}
+          >
             <Sidebar locale={locale} />
             <section className="col note-viewer">{children}</section>
           </IntlProviderClient>

@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import { addNote, updateNote, delNote } from "@/lib/redis";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { stat, mkdir, writeFile } from "fs/promises";
+import { join } from "path";
+import dayjs from "dayjs";
 
 const schema = z.object({
   title: z.string(),
@@ -11,6 +14,57 @@ const schema = z.object({
 });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+export async function importNote(formData) {
+  const file = formData.get("file");
+
+  // 空值判断
+  if (!file) {
+    return { error: "File is required." };
+  }
+
+  // 写入文件
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const relativeUploadDir = `/uploads/${dayjs().format("YY-MM-DD")}`;
+  const uploadDir = join(process.cwd(), "public", relativeUploadDir);
+
+  try {
+    await stat(uploadDir);
+  } catch (e) {
+    if (e.code === "ENOENT") {
+      await mkdir(uploadDir, { recursive: true });
+    } else {
+      console.error(e);
+      return { error: "Something went wrong." };
+    }
+  }
+
+  try {
+    // 写入文件
+    const uniqueSuffix = `${Math.random().toString(36).slice(-6)}`;
+    const filename = file.name.replace(/\.[^/.]+$/, "");
+    const extMatch = file.name.match(/\.([a-z0-9]+)$/i);
+    const ext = extMatch ? extMatch[1] : "bin";
+    const uniqueFilename = `${filename}-${uniqueSuffix}.${ext}`;
+    await writeFile(`${uploadDir}/${uniqueFilename}`, buffer);
+
+    // 调用接口，写入数据库
+    const res = await addNote(
+      JSON.stringify({
+        title: filename,
+        content: buffer.toString("utf-8"),
+      })
+    );
+
+    // 清除缓存
+    revalidatePath("/", "layout");
+
+    return { fileUrl: `${relativeUploadDir}/${uniqueFilename}`, uid: res };
+  } catch (e) {
+    console.error(e);
+    return { error: "Something went wrong." };
+  }
+}
 
 export async function saveNote(prevState, formData) {
   // 获取 noteId
