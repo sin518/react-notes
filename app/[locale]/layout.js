@@ -2,6 +2,7 @@ import "./style.css";
 import Sidebar from "@/components/Sidebar";
 import { getRequestConfig } from "next-intl/server";
 import IntlProviderClient from "@/components/IntlProviderClient";
+import Header from "@/components/Header";
 
 export default async function LocaleLayout({ children, params }) {
   const { locale } = await params;
@@ -10,6 +11,7 @@ export default async function LocaleLayout({ children, params }) {
   return (
     <>
       <div className="container">
+        <Header />
         <div className="main">
           <IntlProviderClient
             locale={locale}
